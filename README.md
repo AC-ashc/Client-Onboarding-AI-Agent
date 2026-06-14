@@ -1,11 +1,11 @@
 # Client-Onboarding-AI-Agent
 AI Powered Client Onboarding Agent
 
-#Overview
+# Overview
 AI-Powered Client Onboarding Agent that automates the client onboarding process from start to finish. Clients submit their information through a digital onboarding form, and the agent intelligently processes the details, stores the data in Google Sheets, and automatically sends a personalized welcome and onboarding email. This solution streamlines client intake, reduces manual effort, ensures accurate record-keeping, and delivers a seamless onboarding experience.
 
 
-#Workflow
+# Workflow
 Form Submission
        │
        ├──────────────► AI Agent (Email Generator)
@@ -22,7 +22,7 @@ Form Submission
                              ▼
                       Append Row to Google Sheet
 
-#Techstack
+# Techstack
 * n8n
 * Gemini model API
 * AI agent
