@@ -1,0 +1,405 @@
+{
+  "name": "Client on-boarding Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Client On-boarding Form",
+        "formDescription": "Welcome! Please fill out the Client On-boarding Form with accurate and complete information",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Legal Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company / Organization Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Job Title",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Department",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Location"
+            },
+            {
+              "fieldLabel": "Email ",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Contact Number",
+              "fieldType": "number",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -224,
+        304
+      ],
+      "id": "8eb6aa5d-31a3-4788-95de-67a49443e516",
+      "name": "On form submission",
+      "webhookId": "redacted"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Can you please create a warm welcome email for a new client based on their information? We want the email to be concise, friendly, but also professional. It should be personalized to the base of their organsation / department  Here is information about the client:\n\nName: {{ $json['Legal Name'] }}\nEmail: {{ $json['Email '] }}\nOrganization: {{ $json['Company / Organization Name'] }}\nDepartment: {{ $json.Department }}\nContact: {{ $json['Contact Number'] }}\n\n\nMake sure to always sign off the email from \"John Doe\". The company is \"ABC INC\" and his position is \"VP Client Relations\". Don't throw in variables for the sign off if information is unknown. We don't ever want {Your Name} or {Your Contact Information}, etc. in the email\n\nOutput this information into two separate fields: \nSubject: Delighted to Welcome You to ABC Inc\nBody: the email's body ",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a helpful assistantYou are a Professional Email Writing Assistant specializing in business communication. Your sole responsibility is to draft clear, concise, professional, and well-structured emails based on the information provided. Always maintain a courteous and professional tone, use proper grammar and formatting, and ensure the email is appropriate for the intended audience and purpose. Generate a relevant subject line when one is not provided. Do not include unnecessary information or make assumptions beyond the details supplied."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        192,
+        -16
+      ],
+      "id": "redacted",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "redacted",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "redacted",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"subject\": \"Email subject line\",\n\"email_body\": \"Complete email body content\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        192
+      ],
+      "id": "redacted",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['Email '] }}",
+        "subject": "={{ $json.output.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.output.email_body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        -14.458471760797337
+      ],
+      "id": "redacted",
+      "name": "Send a message",
+      "webhookId": "redacted",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "redacted",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Take the client information provided and create a summary of the client profile. Here is the client information:\n\nName:{{ $json['Legal Name'] }}\nCompany / Organization: {{ $json['Company / Organization Name'] }}\nDepartment: {{ $json.Department }}\n\nOutput the following parameters separately: \nName: {{ $json['Legal Name'] }}\nJob Title: {{ $json['Job Title'] }}\nCompany: {{ $json['Company / Organization Name'] }}\nDepartment: {{ $json.Department }}\nLocation: {{ $json.Location }}\nEmail: {{ $json['Email '] }}\nContact: {{ $json['Contact Number'] }}\n\nSummary: summary of the client based on the information ",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        112,
+        560
+      ],
+      "id": "redacted",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"name\": \"Full Name\",\n\"job_title\": \"Job Title\",\n\"company\": \"Company Name\",\n\"department\": \"Department\",\n\"location\": \"Location\",\n\"email\": \"Email Address\",\n\"contact\": \"Phone Number\",\n\"summary\": \"Brief professional summary\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        288,
+        768
+      ],
+      "id": "redacted",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -32,
+        768
+      ],
+      "id": "14023c9c-571c-42dd-9f90-35ea61dc8270",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "redacted",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "redacted",
+          "mode": "list",
+          "cachedResultName": "Client On-boarding Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/redacted"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/redacted"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name ": "={{ $json.output.name }}",
+            "Job Title": "={{ $json.output.job_title }}",
+            "Company": "={{ $json.output.company }}",
+            "Department": "={{ $json.output.department }}",
+            "Location": "={{ $json.output.location }}",
+            "Email": "={{ $json.output.email }}",
+            "Contact": "={{ $json.output.contact }}",
+            "Summary": "={{ $json.output.summary }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name ",
+              "displayName": "Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Contact",
+              "displayName": "Contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        560
+      ],
+      "id": "redacted",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "redacted",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "redacted",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "608950fade80d22d6c62d832e4d0505b722c98776b45e15159547ebccaf8af11"
+  },
+  "nodeGroups": [],
+  "id": "matTaa4gKNPdb4GH",
+  "tags": []
+}
